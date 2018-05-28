@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import store from '../store'
 import {authorizeLogin,wxLogin,getUserInfo} from 'api'
 import Storage from 'good-storage'
-const Author = resolve => require(['pages/author'], resolve)
 const Index = resolve => require(['pages/Index/Index'], resolve)
 const Detail = resolve => require([ 'pages/Index/detail'], resolve)
 const GuideList = resolve => require([ 'pages/Index/guideList'], resolve)
@@ -34,15 +33,6 @@ const router =  new Router({
       component: Index,
       meta:{
         title:"智淘APP",
-        index: 0
-      }
-    },
-    {
-      path: '/author',
-      name: 'Author',
-      component: Author,
-      meta:{
-        title:"授权登录",
         index: 0
       }
     },

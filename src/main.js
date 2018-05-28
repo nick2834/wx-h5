@@ -7,7 +7,6 @@ import wx from 'weixin-js-sdk'
 import VueClipboard from 'vue-clipboard2'
 import './assets/less/app.less'
 import './assets/css/iconfont.css'
-import 'mint-ui/lib/style.css'
 import Storage from 'good-storage'
 import { Lazyload,Toast} from 'vant'
 Vue.use(Lazyload);

@@ -147,10 +147,11 @@ section{
                 box-sizing:border-box;
                 text-align:center;
                 span{
-                    font-size: .8rem;
+                    font-size: .9rem;
                 }
                 p{
                     line-height: 2rem;
+                    font-size: 1rem;
                 }
             }
             .vips{
@@ -173,7 +174,7 @@ section{
         padding-bottom: 1rem;
         .except{
             line-height:4rem;
-            font-size:.8rem;
+            font-size:.9rem;
             color:#333;
             font-weight:600;
         }
@@ -185,12 +186,12 @@ section{
                 flex: 1;
                 .except_title {
                     color:#999;
-                    font-size:.8rem;
+                    font-size:.9rem;
                 }
                 p{
                     line-height:2rem;
                     color:#999;
-                    font-size:.8rem;
+                    font-size:.9rem;
                     font-weight:600;
                 }
 

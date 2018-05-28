@@ -1,4 +1,4 @@
-# doubanApp
+# 智淘小程序H5页面
 用 vue2.0 实现zhixuanAPP，将用到 vue-router+webpack+axios+vuex
 
 ## Build Setup
