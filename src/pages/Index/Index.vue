@@ -54,14 +54,15 @@
                 <div class='quanhou'>券后价 <span>￥ {{item.item_price_coupons}}</span> </div>
                 <div class='quan' v-if="item.item_coupon">
                   <span class='myAmount'>券 <span>{{item.item_coupon.amount}}元</span> </span>
+                  <div class='share_msg'>赚 ￥{{item.item_subsidy}}元</div>
                 </div>
               </div>
-              <div class='share_group'>
+              <!-- <div class='share_group'>
                 <span class='share_btn'>
                   <i class='iconfont icon-fenxiang'></i>
                 </span>
                 <div class='share_msg'>赚 ￥{{item.item_subsidy}}</div>
-              </div>
+              </div> -->
             </div>
             <load-more tip="拼命加载中...." v-if="!IslastPage"></load-more>
             <div class="IslastPage" v-else></div>
@@ -117,19 +118,6 @@
       setInterval(this.scroll,3000)
     },
     methods: {
-      isWeiXin() {
-          let ua = window.navigator.userAgent.toLowerCase();
-          if (ua.match(/MicroMessenger/i) == 'micromessenger') {
-              return true;
-          } else {
-              return false;
-          }
-      },
-      wxlogin(data){
-        wxLogin(data).then(res =>{
-          console.log(res)
-        })
-      },
       toDetail(item){
         this.$store.commit('SET_INFOMATION',item)
         
@@ -273,7 +261,6 @@
     },
     mounted () {
       let that = this
-      console.log(this.$route)
       window.addEventListener('scroll', this.handleScroll)      
       this.$nextTick(() => {
         that.clientHeight = `${document.documentElement.clientHeight}`
@@ -498,7 +485,7 @@ header{
     }
     .shop_info{
       margin-left:7rem;
-      padding-right:5rem;
+      padding-right:1rem;
       height: 6rem;
       line-height: 1.5rem;
       .shop_name{
@@ -527,6 +514,7 @@ header{
       .quan{
         font-size:.9rem;
         position:relative;
+        overflow: hidden;
         .myAmount{
           border:1px solid #ff681d;
           background:#ff681d;
@@ -539,7 +527,11 @@ header{
             background:#fff;
             color:#ff681d;
             padding:0 5px;
-          }
+          } 
+        }
+        div{
+            color:#fe3900;
+            float: right;
         }
       }
       .shop_title{
@@ -547,6 +539,7 @@ header{
         margin-left: 1.2rem;
         white-space: nowrap;
         display: block;
+        color: #333;
       }
       .shop_logos{
         width: 1rem;

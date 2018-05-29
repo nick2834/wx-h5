@@ -41,7 +41,7 @@
                             <div class="shop_name">
                                 <img class="shop_logos" v-if="item.item_type == 1" src="../../assets/images/taobao.png" alt="">
                                 <img class="shop_logos" v-else src="../../assets/images/tm.png" alt="">
-                                <p class="shop_title weui-media-box__desc">{{item.item_title}}</p>
+                                <p class="shop_title weui-media-box__desc" style="-webkit-box-orient:vertical;">{{item.item_title}}</p>
                             </div>
                             <div class='xianjia'>现价 ￥ {{item.item_price}}<span>月销 {{item.item_volume}}件</span></div>
                             <div class='quanhou' v-if="item.item_coupon">券后价 <span>￥ {{toFixed(item.item_price - item.item_coupon.amount)}}</span> </div>

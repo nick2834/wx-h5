@@ -23,6 +23,7 @@ const Acount = resolve => require([ 'pages/Mine/acount'], resolve)
 const Myacount = resolve => require([ 'pages/Mine/myacount'], resolve)
 const Withdraw = resolve => require([ 'pages/Mine/withdraw'], resolve)
 const Record = resolve => require([ 'pages/Mine/record'], resolve)
+const RecordDetail = resolve => require([ 'pages/Mine/recodetail'], resolve)
 Vue.use(Router)
 const router =  new Router({
   // mode: 'history',
@@ -201,6 +202,14 @@ const router =  new Router({
       }
     },
     {
+      path: '/record/:id',
+      name: 'RecordDetail',
+      component: RecordDetail,
+      meta:{
+        title:"提现记录详情",index: 8
+      }
+    },
+    {
       path: '/Index',
       redirect: '/'
     },
@@ -224,6 +233,10 @@ function getUrlParms(name){
 }
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
+  // let userInfo = {"uid":420,"nickname":"少年锦时","fullname":"","mobile":18968038986,"avatar":"https://wx.qlogo.cn/mmopen/vi_32/zPDgRLJYvWAeE6cOciankEwrZyzFHXgHa8xHodU9MpHibicTTGR7Fr5Md7okzPr8Iribz5fLbWtcxkMshk1JbpbQeg/132","money":"0.00","type":3,"status":0,"today_deal_money":"0.00","today_grant_money":"0.00","totalmoney":0}
+  // store.commit('SET_USER',userInfo)
+  // store.commit('SET_TOKEN',"YTo0OntzOjM6InVpZCI7aTo0NDM7czo2OiJvcGVuaWQiO3M6Mjg6Im9RTEdHNUVMZktfZlZGWG53Qm5DeDF5THNQcjgiO3M6NDoidGltZSI7aToxNTI3NTc3MjQyO3M6Mzoia2V5IjtzOjMyOiI1ZmIxNjE3YmYyNjU3MjM5NzI0MjA4YTZlYzE0NjQyYSI7fQ")
+  // // store.commit('SET_IDENTITYCODE',userInfo.type)
   if ((!Storage.session.get('token') && !store.state.token && !store.state.hasLogin)) {
     // 第一次访问
     console.log('授权登录')
@@ -263,6 +276,7 @@ router.beforeEach((to, from, next) => {
     console.log('已登录')
     next()
   }
+  next()
 });
 
 export default router

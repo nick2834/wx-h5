@@ -1,15 +1,20 @@
 import Vue from 'vue'
 import axios from 'axios'
+import Qs from 'qs'
 import Storage from 'good-storage'
 import  { LoadingPlugin } from 'vux'
 Vue.use(LoadingPlugin)
 axios.interceptors.request.use(config =>{
     Vue.$vux.loading.show({
-        text: 'Loading'
+        text: '请稍候...'
     })
-    // let token = Storage.session.get('token')
+    let token = Storage.session.get('token')
+    config.data = Qs.stringify(config.data)
+    config.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    }
     // if (token) {
-    //     config.params['token'] = token;
+    //     config.params = {'token': token};
     // }    
     return config;
 }, function (error) {
@@ -37,7 +42,7 @@ export const wxLogin = (params) => {
 export const getUserInfo = (params) => {
     return axios.get(process.env.API_HOST + `api/users/index`,{params:params}).then(res => res.data)
 }
-
+//
 
 //首页指引接口
 export const guidelist = () => {
@@ -56,8 +61,8 @@ export const indexShopList = (params) => {
     return axios.get(process.env.API_HOST + `api/goods/lists`,{params:params}).then(res => res.data)
 }
 //淘宝客转链
-export const tbkConvert = (data) =>{
-    return axios.post(process.env.API_HOST + 'api/tbk/convert',data).then(res =>res.data)
+export const tbkConvert = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/tbk/convert',{params:params}).then(res =>res.data)
 }
 //商品详情
 export const getDetails = (params) =>{
@@ -113,4 +118,70 @@ export const getEaring = (data) =>{
 //拓客榜
 export const getExpand = (data) =>{
     return axios.post(process.env.API_HOST + 'api/space/expand',data).then(res =>res.data)
+}
+
+
+//SVIP
+// svipcard
+export const svipcard = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/index',data).then(res =>res.data)
+}
+//今日昨日数据
+export const twodays = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/twodays',data).then(res =>res.data)
+}
+// usersnum
+export const usersnum = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/usersnum',data).then(res =>res.data)
+}
+//statisticsmoney
+export const statisticsmoney = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/statisticsmoney',data).then(res =>res.data)
+}
+//statisticcustomer
+export const statisticcustomer = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/statisticcustomer',data).then(res =>res.data)
+}
+
+// 我的账户
+export const account = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/users/account',{params:params}).then(res =>res.data)
+}
+//申请提现
+export const extract = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/withdrawals/extract',data).then(res =>res.data)
+}
+
+// 二维码缩略图
+export const qrcodelist = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/qrcode/items',{params:params}).then(res =>res.data)
+}
+// 封面
+export const poster = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/qrcode/poster',{params:params}).then(res =>res.data)
+}
+//我的客户
+export const mycustomer = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/user/mycustomer',{params:params}).then(res =>res.data)
+}
+// 收入明细
+export const orders = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/orders',{params:params}).then(res =>res.data)
+}
+//提现记录
+export const extractlist = (params) =>{
+    return axios.get(process.env.API_HOST + 'api/withdrawals/lists',{params:params}).then(res =>res.data)
+}
+//提现详情
+export const extractdetails= (params) =>{
+    return axios.get(process.env.API_HOST + 'api/withdrawals/details',{params:params}).then(res =>res.data)
+}
+
+//SVIP购买
+export const pay = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/pay',data).then(res =>res.data)
+}
+//智淘码购买
+export const codepay = (data) =>{
+    return axios.post(process.env.API_HOST + 'api/svip/verification_code',data).then(res =>res.data)
 }

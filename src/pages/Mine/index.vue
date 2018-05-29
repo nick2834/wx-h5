@@ -1,30 +1,64 @@
 <template>
     <section class="page-content">
       <header>
-        <div class="head">
-          <img src="../../assets/images/default.png" alt="">
+        <div class="head" v-if="identityCode <= 1 || identityCode == undefined">
+          <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+          <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
           <div class="head_info">
-            <span class="username">少年锦时</span>
-            <span class="infomsg">免费升级 ></span>
+            <span class="username"><span>{{userInfo.nickname}}</span><img v-if="identityCode === 1" class="img-responsive" style="width:1.5rem" src="../../assets/images/vip_icon.png" alt=""></span>
+            <router-link class="infomsg" to="/register">免费升级 ></router-link>
           </div>
           <router-link class="usermoney" to="/acount">
-            <span class="money">0.00</span>
+            <span class="money">{{userInfo.money}}</span>
+            <span class="money_info">可用佣金（元） ></span>
+          </router-link>
+        </div>
+        <div class="head" v-else-if="identityCode == 2">
+          <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+          <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
+          <div class="head_info">
+            <span class="username"><span>{{userInfo.nickname}}</span><img class="img-responsive" style="width:1.5rem" src="../../assets/images/svip_icon.png" alt=""></span>
+            <span class="infomsg">{{userInfo.svip_end_time}}到期</span>
+          </div>
+          <router-link class="usermoney" to="/acount">
+            <span class="money">{{userInfo.money}}</span>
+            <span class="money_info">可用佣金（元） ></span>
+          </router-link>
+        </div>
+        <div class="head" v-else>
+          <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+          <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
+          <div class="head_info">
+            <span class="username" style="flex:1"><span>{{userInfo.nickname}}</span><img class="img-responsive" src="../../assets/images/tubu_icon.png" alt=""></span>
+          </div>
+          <router-link class="usermoney" to="/acount">
+            <span class="money">{{userInfo.money}}</span>
             <span class="money_info">可用佣金（元） ></span>
           </router-link>
         </div>
       </header>
       <section class="money_box">
         <router-link tag="span" class="compute" to="/income">
-          <span>0.00</span>
+          <span>{{userInfo.today_grant_money}}</span>
           <span>今日结算预估佣金(元）</span>
         </router-link>
         <router-link tag="span" class="compute" to="/income">
-          <span>0.00</span>
+          <span>{{userInfo.today_deal_money}}</span>
           <span>今日成交预估佣金(元）</span>
         </router-link>
         <span class="line"></span>
       </section>
-      <div class="footer">
+      <div class="footer" v-if="identityCode <= 1 || identityCode == undefined">
+        <group>
+        <cell title="联系客服" :link="{path:'/'}">
+          <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_kf.png">
+        </cell>
+        <cell title="常见问题" :link="{path:'/questions'}">
+          <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_cjwt.png">
+        </cell>
+        </group>
+      </div>
+      <div class="footer" v-else>
         <group>
         <cell title="我的客户" :link="{path:'/custom'}">
           <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_kh.png">
@@ -48,6 +82,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import { Icon,XSwitch,Group,Cell} from 'vux'
+import {getUserInfo} from 'api'
 export default({
   data () {
     return {
@@ -55,7 +90,7 @@ export default({
     }
   },
   computed:{
-      ...mapGetters(['userInfo','identityCode'])
+      ...mapGetters(['userInfo','identityCode','token'])
   },
   components: {
     Icon,
@@ -64,10 +99,17 @@ export default({
     Cell
   },
   methods: {
-    
+    getUserInfo(data){
+      getUserInfo(data).then(res =>{
+        if(res.code === 0){
+
+        }
+      })
+    }
   },
   mounted () {
-    
+    let data = {token:this.token}
+    this.getUserInfo(data)
   }
 })
 </script>
@@ -111,6 +153,21 @@ header{
         flex: .5;
         display: flex;
         align-items: center;
+        span{
+          max-width: 6rem;
+          overflow: hidden;
+          white-space:nowrap;
+          text-overflow:ellipsis;
+          -o-text-overflow:ellipsis;
+          overflow:hidden;
+          -webkit-box-orient:vertical;
+        }
+        img{
+          width: 2.5rem;
+          border-radius: 0;
+          height: auto;
+          margin-left: 10px;
+        }
       }
       .infomsg{
         position:absolute;

@@ -49,17 +49,22 @@
             </van-radio-group>
         </div>
         <div class="van-submit-bar">
-            <div class="van-submit-bar__bar">
-                <div class="van-submit-bar__price" v-if="radio == '1'">
+            <div class="van-submit-bar__bar" v-if="radio == '1'">
+                <div class="van-submit-bar__price">
                     <span>总计：</span>
                     <span class="gold_col">¥298</span>
                     <span class="">已优惠100元</span>
                 </div>
-                <div class="van-submit-bar__price" v-else>
+                <button class="van-button van-button--danger van-button--normal" @click="onSubmitPay"><!---->
+                    <span class="van-button__text">确认支付</span>
+                </button>
+            </div>
+            <div class="van-submit-bar__bar" v-else>
+                <div class="van-submit-bar__price">
                    <van-field v-model="value" placeholder="请输入你的智淘码" />
                 </div>
-                <button class="van-button van-button--danger van-button--normal" @click="onSubmit"><!---->
-                    <span class="van-button__text">提交订单</span>
+                <button class="van-button van-button--danger van-button--normal" @click="onSubmitCodepay"><!---->
+                    <span class="van-button__text">确认</span>
                 </button>
             </div>
         </div>
@@ -67,7 +72,11 @@
 </template>
 <script>
 import FreeDom from 'components/freedom'
+import {mapGetters} from 'vuex'
 import { RadioGroup, Radio, Cell, CellGroup,SubmitBar,Field  } from 'vant'
+import Storage from 'good-storage'
+import {pay,codepay} from 'api'
+import wx from 'weixin-js-sdk'
 export default {
     components: {
         FreeDom,
@@ -84,13 +93,85 @@ export default {
             value: ''
         }
     },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
+    },
     methods: {
-        onSubmit(e){
-            console.log(e)
+        getPay(data){
+            let that = this
+            pay(data).then(res =>{
+                
+                if(res.code === 0){
+                    var data = res.jsapi
+                    let appId = data.appId;
+                    let timestamp = data.timeStamp;
+                    let nonceStr = data.nonceStr;
+                    let signature = data.signature;
+                    let packages = data.package;
+                    let paySign = data.paySign;
+                    wx.config({
+                        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                        url: 'http://wx.wxrwin.com/#/buysvip',
+                        appId: appId, // 必填，公众号的唯一标识
+                        timestamp: timestamp, // 必填，生成签名的时间戳
+                        nonceStr: nonceStr, // 必填，生成签名的随机串
+                        signature: signature, // 必填，签名，见附录1
+                        jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                    });
+                    wx.ready(function(){
+                        wx.chooseWXPay({
+                            timestamp: timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                            nonceStr: nonceStr, // 支付签名随机串，不长于 32 位
+                            package: packages, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+                            signType: 'MD5', // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+                            paySign: paySign, // 支付签名
+                            success: function(res) {
+                                that.$store.commit('SET_IDENTITYCODE',2)
+                                let type = this.$route.query.type
+                                if(type === 'details'){
+                                    that.$router.replace(Storage.session.get('detailPath'))
+                                }else{
+                                    that.$router.replace('/svip')
+                                }
+                            },
+                            fail:function(res){
+                                console.log(res)
+                            }
+                        });
+                    });
+                    wx.error(function(res) {
+                        // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+                        /*alert("config信息验证失败");*/
+                        console.log(res)
+                    });
+                }
+            })
+        },
+        getCodepay(data){
+            codepay(data).then(res =>{
+                console.log(res)
+            })
+        },
+        onSubmitPay(e){
+            let data = {
+                token: this.token,
+                appid: 'wx87b3acb00474dd24',
+                money: '0.01'
+            }
+            this.getPay(data)
+        },
+        onSubmitCodepay(e){
+            if(this.value == ''){
+                this.$Toast('请输入正确的智淘码')
+                return
+            }
+            let data = { code: this.value, uid: this.userInfo.uid,token: this.token}
+            this.getCodepay(data)
         }
     },
     mounted () {
-        
+        let type = this.$route.query.type
+        console.log(Storage.session.get('detailPath'))
     }
 }
 </script>

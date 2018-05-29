@@ -4,7 +4,7 @@
       <router-link class="weui-media-box weui-media-box_appmsg list"  :to="{name: 'GuideDetail', params: {id: item.id}}">
         <div class="weui-media-box__bd">
           <h4 class="weui-media-box__title" v-html="item.title"></h4>
-          <p class="weui-media-box__desc" v-html="item.info"></p>
+          <p class="weui-media-box__desc" v-html="item.info" style="-webkit-box-orient:vertical;"></p>
         </div>
         <img  v-if="item.type == 'image'" class="img-responsive" :src="item.imagesrc" alt="">
         <img v-else class="img-responsive" :src="item.imagesrc" alt="">
@@ -67,6 +67,9 @@
 
 
 <style lang="less" scoped>
+.weui-panel__bd{
+  background: #fff
+}
 .itemList{
   border-bottom: 1px solid #E9E8E8;
   padding: 1rem !important;
@@ -104,6 +107,7 @@
   color:#333;
   font-size:.8rem;
   margin-bottom:1rem;
-  line-height: 2rem
+  line-height: 2rem;
+  -webkit-box-orient:vertical;
 }
 </style>

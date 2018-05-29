@@ -26,7 +26,7 @@
             <div class="goods_title" v-if="goodsDetail.item_type === 1" v-cloak>
               <img class="img-responsive" src="../../assets/images/tm.png" alt="">{{goodsDetail.item_title}}
             </div>
-            <button class="iconfont icon-fenxiang"></button>
+            <!-- <button class="iconfont icon-fenxiang"></button> -->
           </div>
           <div class="preferential" v-if="hasDone">
             <div class="pre" :style="{'background':(!hasDone?'#f3f3f3':'')}">
@@ -57,7 +57,7 @@
         <div class="footer" v-if="hasDone">
           <div class="footer-box" v-if="identityCode <= 0 || identityCode == undefined">
             <van-goods-action-big-btn @click="onClickBigBtn" to="/register">
-              <p class="btn-text h6">升级SVIP 多赚￥{{goodsTbkDetail.upgrade_subsidy}}</p>
+              <p class="btn-text h6">升级VIP 多赚￥{{goodsTbkDetail.upgrade_subsidy}}</p>
               <p class="btn-text h3">立即升级</p>
             </van-goods-action-big-btn>
             <van-goods-action-big-btn 
@@ -70,7 +70,7 @@
             </van-goods-action-big-btn>
           </div>
           <div class="footer-box" v-else-if="identityCode === 1">
-            <van-goods-action-big-btn text="加入购物车" @click="onClickBigBtn" to="/buysvip">
+            <van-goods-action-big-btn text="加入购物车" @click="onClickBigBtn" to="/buysvip?type=details">
               <p class="btn-text h6">升级SVIP 多赚￥{{goodsTbkDetail.upgrade_subsidy}}</p>
               <p class="btn-text h3">立即升级</p>
             </van-goods-action-big-btn>
@@ -153,6 +153,7 @@ import { GoodsAction,  GoodsActionBigBtn,  GoodsActionMiniBtn,ImagePreview} from
 import {Loading,XDialog,TransferDomDirective as TransferDom} from 'vux'
 import {tbkConvert,getDetails,goodsImgDetails} from 'api'
 import { setTimeout } from 'timers';
+import Storage from 'good-storage'
 export default {
   directives: {
     TransferDom
@@ -244,6 +245,8 @@ export default {
     let that = this
     let comInfomation = that.$store.state.comInfomation
     that.$nextTick(() =>{
+      console.log(that.$route)
+      Storage.session.set('detailPath',that.$route.fullPath)
       let id = this.$route.params.id
       this.amountInfo = this.$route.params.info
       let data = {

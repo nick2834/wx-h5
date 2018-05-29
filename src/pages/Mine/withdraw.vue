@@ -2,19 +2,19 @@
     <div class="page-content">
         <div class='header'>
             <div class='title'>可用佣金（元）</div>
-            <div class='money'>0.00</div>
+            <div class='money'>{{userInfo.money}}</div>
         </div>
         <group>
             <cell :title="'收款账户'">
-                <div class="userbox">
-                    <img class="user_avatar img-responsive" src="https://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83epHXnkpD5GImsQkiblbWZCJa3Fo9eV96upBRPeuRGEG899VHAKC32l3rul3HoMkwBK7Dy7obxOdMEQ/132" alt="">
-                    <span class="user_name">Nickname</span>
+                <div class="userbox" v-cloak>
+                    <img class="user_avatar img-responsive" :src="userInfo.avatar" alt="">
+                    <span class="user_name">{{userInfo.nickname}}</span>
                 </div>
             </cell>
             <cell :title="'收款方式'" :value="'微信零钱'"></cell>
             <cell :title="'姓名'">
                 <div>
-                    <input @blur="onBlur" class="nickname" name="nickname" type="text" v-model="form.nickname" placeholder="请输入提现用户姓名">
+                    <input @blur="onBlur" class="nickname" name="nickname" type="text"  v-model="form.nickname" placeholder="请输入提现用户姓名">
                 </div>
             </cell>
             <cell :title="'提取金额'">
@@ -31,13 +31,18 @@
     </div>    
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import { Cell,Group,Alert  } from 'vux'
+import {getUserInfo,extract} from 'api'
 const NAMEREG = /^([a-zA-Z0-9\u4e00-\u9fa5\·]{1,10})$/
 export default {
     components: {
         Cell,
         Group,
         Alert 
+    },
+    computed:{
+      ...mapGetters(['fullname','userInfo','token'])
     },
     data () {
         return {
@@ -50,6 +55,26 @@ export default {
         }
     },
     methods: {
+        getUserInfo(data){
+            getUserInfo(data).then(res =>{
+                if(res.code === 0){
+                    this.$store.commit('SET_USER',res.result.data)
+                    this.$store.commit('SET_FULLNAME',res.result.data.fullname)
+                    this.form.nickname = res.result.data.fullname
+                }
+            })
+        },
+        getExtract(data){
+            extract(data).then(res =>{
+                if(res.code === 0){
+                    this.$Toast(res.msg)
+                    let datas = {token:that.token}
+                    that.getUserInfo(datas)
+                }else{
+                    this.$Toast(res.msg)
+                }
+            })
+        },
         onBlur(e){
             let that = this
             let nickname = that.form.nickname
@@ -61,11 +86,20 @@ export default {
                 that.showToast = true
                 return
             }
-            console.log(this.form)
+            let data = {
+                token: that.token,
+                money:that.form.money,
+                fullname: that.form.nickname
+            }
+            that.getExtract(data)
         }
     },
     mounted () {
-        
+        let that = this
+        that.$nextTick(() =>{
+            let data = {token:that.token}
+            that.getUserInfo(data)
+        })
     }
 }
 </script>

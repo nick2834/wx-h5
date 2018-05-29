@@ -4,7 +4,7 @@
             <div class='money_box'>
                 <div class='nums'>
                     <p>可用佣金（元）</p>
-                    <p class='mymoney'>0.00</p>
+                    <p class='mymoney'>{{account.money}}</p>
                 </div>
             </div>
             <div class='money_btn'>
@@ -16,21 +16,21 @@
             <div class='up'>
                 <div class='con_box up_l'>
                     <p class='cont_title'>累计佣金（元）</p>
-                    <p class='con_money'>0</p>
+                    <p class='con_money'>{{account.totalmoney}}</p>
                 </div>
                 <div class='con_box up_r'>
                     <p class='cont_title'>待确认佣金（元）</p>
-                    <p class='con_money'>0</p>
+                    <p class='con_money'>{{account.wait_money}}</p>
                 </div>
             </div>
             <div class='down'>
                 <div class='con_box down_l'>
                     <p class='cont_title'>提现中（元）</p>
-                    <p class='con_money'>0</p>
+                    <p class='con_money'>{{account.underway_money}}</p>
                 </div>
                 <div class='con_box down_r'>
                     <p class='cont_title'>已提现（元）</p>
-                    <p class='con_money'>0</p>
+                    <p class='con_money'>{{account.complete_money}}</p>
                 </div>
             </div>
         </div>
@@ -51,8 +51,36 @@
     </div>
 </template>
 <script>
+import {account} from 'api'
+import {mapGetters} from 'vuex'
 export default {
-    
+    data () {
+        return {
+            account:{}
+        }
+    },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
+    },
+    methods: {
+        getAccount(data){
+            account(data).then(res =>{
+                if(res.code === 0){
+                    this.account = res.result.data
+                }
+            })
+        }
+    },
+    mounted () {
+        let that = this
+        that.$nextTick(() =>{
+            let data = {
+                token:that.token,
+                uid: that.userInfo.uid
+            }
+            that.getAccount(data)
+        })
+    }
 }
 </script>
 <style lang="less" scoped>

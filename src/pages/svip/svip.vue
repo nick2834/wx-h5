@@ -13,19 +13,19 @@
                 <tab-item @on-item-click="handelClick('yesterday')">昨日</tab-item>
             </tab>
             <div class="tab_content">
-                <p class="except"> 成交预估收入: ￥0.00 </p>
+                <p class="except"> 成交预估收入: ￥{{todaysInfo.sum}} </p>
                 <div class="except_nums">
                     <div class="except_box">
                         <div class="except_title">新增客户数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.new_putong}}</p>
                     </div>
                     <div class="except_box">
                         <div class="except_title">付款笔数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.count}}</p>
                     </div>
                     <div class="except_box">
                         <div class="except_title">新增SVIP数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.new_svip}}</p>
                     </div>
                 </div>
             </div>
@@ -39,8 +39,10 @@
     </section>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import {Cell,Group,Tab, TabItem,Grid, GridItem} from 'vux'
 import FreeDom from 'components/freedom'
+import {svipcard,twodays,usersnum,statisticsmoney,statisticcustomer} from 'api'
 export default {
     components: {
       Cell,
@@ -51,18 +53,54 @@ export default {
       GridItem,
       FreeDom
     },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
+    },
     data () {
         return {
-            
+            usersNums: {},
+            dayItem: 'today',
+            todaysInfo: {},
+            items: []
         }
     },
     methods: {
        handelClick(item){
-           console.log(item)
-       } 
+           let that = this
+           let data = {
+               uid: that.userInfo.uid,
+               token: that.token,
+               type: item
+           }
+           that.getToday(data)
+       },
+       getUseNums(data){
+           usersnum(data).then(res =>{
+               if(res.code === 0){
+                   this.usersNums = res.result.data
+               }
+           })
+       },
+       getToday(data){
+           twodays(data).then(res =>{
+               if(res.code === 0){
+                   this.todaysInfo = res.result.data
+               }
+           })
+       },
     },
     mounted () {
-        
+        let that = this
+        let data = {uid:that.userInfo.uid}
+        let data2 = {
+            uid: that.userInfo.uid,
+            token: that.token,
+            type: 'today'
+        }
+        this.$nextTick(()=> {
+            that.getUseNums(data)
+            that.getToday(data2)
+        }) 
     }
 }
 </script>

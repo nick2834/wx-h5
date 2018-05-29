@@ -5,15 +5,15 @@
                 <div class='all_nums'>
                 <div class='alls'>
                     <span>客户数</span>
-                    <p class='gold_col'>0</p>
+                    <p class='gold_col'>{{usersNums.kehu}}</p>
                 </div>
                 <div class='vips'>
                     <span>VIP 数</span>
-                    <p class='gold_col'>0</p>
+                    <p class='gold_col'>{{usersNums.vip}}</p>
                 </div>
                 <div class='svips'>
                     <span>SVIP 数</span>
-                    <p class='gold_col'>0</p>
+                    <p class='gold_col'>{{usersNums.svip}}</p>
                 </div>
                 </div>
             </div>
@@ -24,19 +24,19 @@
                 <tab-item @on-item-click="handelClick('yesterday')">昨日</tab-item>
             </tab>
             <div class="tab_content">
-                <p class="except"> 成交预估收入: ￥0.00 </p>
+                <p class="except"> 成交预估收入: ￥{{todaysInfo.sum}} </p>
                 <div class="except_nums">
                     <div class="except_box">
                         <div class="except_title">新增客户数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.new_putong}}</p>
                     </div>
                     <div class="except_box">
                         <div class="except_title">付款笔数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.count}}</p>
                     </div>
                     <div class="except_box">
                         <div class="except_title">新增SVIP数</div>
-                        <p>0</p>
+                        <p>{{todaysInfo.new_svip}}</p>
                     </div>
                 </div>
             </div>
@@ -46,13 +46,8 @@
                 <div class="vux-cell-bd vux-cell-primary"><p><label class="vux-label">收入统计</label> </p> <span class="vux-label-desc"></span></div>
                 <router-link to="/income" class="weui-flex__item weui-cell__ft_in-access weui-cell__ft">收入统计</router-link>
             </div>
-            <div>
-                <v-chart ref="demo" :data="data">
-                    <v-scale x field="月份" />
-                    <v-scale y field="月均降雨量" />
-                    <v-bar series-field="name" adjust="stack" />
-                    <v-tooltip show-value-in-legend />
-                </v-chart>
+            <div class="barChart" ref="barChart">
+                <div id="barChart" style="width:100%;height:15rem"></div>
             </div>
         </div>
         <div class="count_box customs">
@@ -60,62 +55,211 @@
                 <div class="vux-cell-bd vux-cell-primary"><p><label class="vux-label">客户统计</label> </p> <span class="vux-label-desc"></span></div>
                 <router-link to="/custom" class="weui-flex__item weui-cell__ft_in-access weui-cell__ft">客户统计</router-link>
             </div>
-            <div>
-                <v-chart :data="data2">
-                    <v-line series-field="type" />
-                </v-chart>
+            <div class="lineChart">
+                <div id="lineChart" style="width:100%;height:15rem"></div>
             </div>
         </div>
     </section>
 </template>
 <script>
-import {Cell,Group,Tab, TabItem, VChart, VLine, VArea, VTooltip, VLegend, VBar, VScale,VAxis} from 'vux'
+import {mapGetters} from 'vuex'
+import echarts from 'echarts'
+import {Cell,Group,Tab, TabItem} from 'vux'
+import {svipcard,twodays,usersnum,statisticsmoney,statisticcustomer} from 'api'
 import data2 from './lint-color.json'
 export default {
     components: {
         Cell,
         Group,
         Tab,
-        TabItem,
-        VChart,
-        VLine,
-        VArea,
-        VTooltip,
-        VLegend,
-        VBar,
-        VScale,
-        VAxis
+        TabItem
+    },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
     },
     data () {
         return {
-            data: [
-                { name: 'London', 月份: 'Jan.', 月均降雨量: 18.9 },
-                { name: 'London', 月份: 'Feb.', 月均降雨量: 28.8 },
-                { name: 'London', 月份: 'Mar.', 月均降雨量: 39.3 },
-                { name: 'London', 月份: 'Apr.', 月均降雨量: 81.4 },
-                { name: 'London', 月份: 'May.', 月均降雨量: 47 },
-                { name: 'London', 月份: 'Jun.', 月均降雨量: 20.3 },
-                { name: 'London', 月份: 'Jul.', 月均降雨量: 24 },
-                { name: 'London', 月份: 'Aug.', 月均降雨量: 35.6 },
-                { name: 'Berlin', 月份: 'Jan.', 月均降雨量: 12.4 },
-                { name: 'Berlin', 月份: 'Feb.', 月均降雨量: 23.2 },
-                { name: 'Berlin', 月份: 'Mar.', 月均降雨量: 34.5 },
-                { name: 'Berlin', 月份: 'Apr.', 月均降雨量: 99.7 },
-                { name: 'Berlin', 月份: 'May.', 月均降雨量: 52.6 },
-                { name: 'Berlin', 月份: 'Jun.', 月均降雨量: 35.5 },
-                { name: 'Berlin', 月份: 'Jul.', 月均降雨量: 37.4 },
-                { name: 'Berlin', 月份: 'Aug.', 月均降雨量: 42.4 }
+            data2,
+            usersNums: {},
+            dayItem: 'today',
+            todaysInfo: {},
+            items: [],
+            boxWidth: 0,
+            boxHeight: 0,
+            barChartBox: null,
+            lineChartBox: null,
+            options: [
+                {
+                    name:'商品分佣',
+                    type:'bar',
+                    stack: '收入',
+                    barWidth : 10,
+                    data:[]
+                },
+                {
+                    name:'推荐奖励',
+                    type:'bar',
+                    stack: '收入',
+                    barWidth : 10,
+                    data:[]
+                }
             ],
-            data2
+            options2:[
+                {
+                    name:'新增客户',
+                    type:'line',
+                    stack: '总量',
+                    data:[]
+                },
+                {
+                    name:'新增VIP',
+                    type:'line',
+                    stack: '总量',
+                    data:[]
+                },
+                {
+                    name:'新增SVIP',
+                    type:'line',
+                    stack: '总量',
+                    data:[]
+                },
+            ]
         }
+    },
+    created () {
+        // this.drawBar()
+        // this.drwaLine()
     },
     methods: {
        handelClick(item){
-           console.log(item)
+           let that = this
+           let data = {
+               uid: that.userInfo.uid,
+               token: that.token,
+               type: item
+           }
+           that.getToday(data)
+       },
+       getUseNums(data){
+           usersnum(data).then(res =>{
+               if(res.code === 0){
+                   this.usersNums = res.result.data
+               }
+           })
+       },
+       getToday(data){
+           twodays(data).then(res =>{
+               if(res.code === 0){
+                   this.todaysInfo = res.result.data
+               }
+           })
+       },
+       getInnerList(data){
+           statisticsmoney(data).then(res =>{
+               if(res.code === 0){
+                    let list = res.result.data
+                    let dateArr = []
+                    for(let i in list){
+                        dateArr.unshift(i)
+                        this.options[0].data.unshift(list[i].shopping)
+                        this.options[1].data.unshift(list[i].shopping)
+                    }
+                    this.barChartBox = echarts.init(document.getElementById('barChart'))
+                    this.barChartBox.setOption({
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        legend: {
+                            data:['商品分佣','推荐奖励']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : dateArr,
+                                axisLabel:{ //调整x轴的lable  
+                                    textStyle:{
+                                        fontSize:10 // 让字体变大
+                                    }
+                                }
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : this.options
+                    });
+               }
+           })
+       },
+       getCustomers(data){
+           statisticcustomer(data).then(res =>{
+               if(res.code === 0){
+                    let list = res.result.data
+                    let dateArr = []
+                    for(let i in list){
+                        dateArr.unshift(i)
+                        this.options2[0].data.unshift(list[i].kehu)
+                        this.options2[1].data.unshift(list[i].vip)
+                        this.options2[2].data.unshift(list[i].svip)
+                    }
+                    this.lineChartBox = echarts.init(document.getElementById('lineChart'))
+                    this.lineChartBox.setOption({
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['新增客户','新增VIP','新增SVIP']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: dateArr,
+                            axisLabel:{ //调整x轴的lable  
+                                textStyle:{
+                                    fontSize:10 // 让字体变大
+                                }
+                            }
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: this.options2
+                    });
+               }
+           })
        } 
     },
     mounted () {
-        
+        let that = this;
+        let data = {uid:that.userInfo.uid}
+        let data2 = {
+            uid: that.userInfo.uid,
+            token: that.token,
+            type: 'today'
+        }
+        that.$nextTick(()=> {
+            that.getUseNums(data)
+            that.getToday(data2)
+            that.getInnerList(data)
+            that.getCustomers(data)
+        }) 
     }
 }
 </script>
@@ -209,5 +353,8 @@ section{
     .weui-flex__item{
         color: #317df4
     }
+}
+.barChart,.lineChart{
+    height: 15rem;
 }
 </style>

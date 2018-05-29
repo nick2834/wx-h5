@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <transition :name="transitionName">
-      <router-view></router-view>
+    <!-- <transition :name="transitionName"> -->
+    <transition>
+      <router-view keep-alive></router-view>
     </transition>
     <tabbar slot="bottom" v-show="$route.path == '/index' || $route.path == '/svippage' || $route.path == '/rankpage'||$route.path == '/mine' ||$route.path == '/'">
       <tabbar-item link="/index" :selected="$route.path == '/index' || $route.path == '/'">

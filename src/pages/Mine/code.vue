@@ -2,13 +2,17 @@
   <section class="page-content">
     <div class="card_content" :style="{'height':scrollHeight}" ref="cardbox">
         <div class="filter-box" :style="{'backgroundImage':'url(' + imgUrl + ')'}"></div>
-        <img 
+        <!-- <img 
             ref="codeImg"
             @touchstart='touchStart'   
             @touchmove='touchMove'   
             @touchend='touchEnd' 
             class="img-responsive" 
-            :src="imgUrl" alt="">
+            :src="imgUrl" alt="" @click="getPreview"> -->
+            <img 
+            ref="codeImg"
+            class="img-responsive" 
+            :src="imgUrl" alt="" @click="getPreview">
     </div>
     <div class="card_footer" ref="cardft">
         <scroller lock-y :scrollbar-x=false>
@@ -23,31 +27,33 @@
   </section>
 </template>
 <script>
+import {mapGetters} from 'vuex'
+import {ImagePreview} from 'vant'
 import { Scroller  } from 'vux'
 import { setTimeout } from 'timers';
+import Storage from 'good-storage'
+import {qrcodelist,poster} from 'api'
 var touchDot = 0;//触摸时的原点
 var time = 0;//  时间记录，用于滑动时且时间小于1s则执行左右滑动
 var interval = "";// 记录/清理 时间记录
 var tmpFlag = true;// 判断左右滑动超出菜单最大值时不再执行滑动事件
 export default{
     components: {
-       Scroller 
+       Scroller,
+       ImagePreview 
+    },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
     },
     data () {
         return {
-            imgList:[
-                {code:'01',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_01.jpg?20180525'},
-                {code:'02',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_02.jpg?20180525'},
-                {code:'03',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_03.jpg?20180525'},
-                {code:'04',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_04.jpg?20180525'},
-                {code:'05',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_05.jpg?20180525'},
-                {code:'06',icon:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_06.jpg?20180525'},
-            ],
+            imgList:[],
+            defaultCode: '01',
+            imgUrl: '',
             activeIndex: 0,
             clientHeight: 0,
             scrollHeight: 0,
             touchCode: 0,
-            imgUrl:'https://api.wxrwin.com/upload/haibao/wxbdc641a415d9fec2_877_01.jpg?20180525',
             startX:0,//开始触摸的位置  
             moveX:0,//滑动时的位置  
             endX:0,//结束触摸的位置  
@@ -55,11 +61,39 @@ export default{
         }
     },
     methods: {
+        getList(data){
+            qrcodelist(data).then(res =>{
+                if(res.code === 0){
+                    this.imgList = res.result.data
+                }
+            })
+        },
+        getPoster(data){
+            poster(data).then(res =>{
+                let posterArr = []
+                if(res.code === 0){
+                    var o = new Object()
+                    o.codeId = data.code
+                    o.imgUrl = res.result.pic_url
+                    posterArr.push(o)
+                    Storage.session.set('POSTER',posterArr)
+                    this.imgUrl = res.result.pic_url
+                }
+            })
+        },
+        getPreview(){
+            ImagePreview([this.imgUrl])
+        },
         tabClick(index){
             this.activeIndex = index
         },
         handleChange(item){
-            this.imgUrl = item.icon
+            this.defaultCode = item.code
+            let data = {
+                code: item.code,
+                token: this.token
+            }
+            this.getPoster(data)
         },
         touchStart(e){
             e = e || event;  
@@ -110,7 +144,10 @@ export default{
        that.$nextTick(() => {
            that.clientHeight = `${document.documentElement.clientHeight}`
            that.scrollHeight = (that.clientHeight - that.$refs.cardft.offsetHeight) + 'px'
-           console.log(that.scrollHeight)
+           let data = {token:that.token}
+           let data2 = {token:that.token,code:that.defaultCode}
+           that.getList(data)
+           that.getPoster(data2)
        })
     }
 }

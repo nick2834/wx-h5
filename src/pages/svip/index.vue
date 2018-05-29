@@ -6,18 +6,19 @@
       <!-- 判断用户类型 -->
       <div class="head_card" v-cloak>
         <!-- 普通人、VIP -->
-        <div class="card" v-if="identityCode <= 1">
+        <div class="card" v-if="identityCode <= 1 || identityCode == undefined">
           <div class="card_t">
-            <img class="user_avatar" src="../../assets/images/default.png" alt="">
+            <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+            <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
             <div class="card_t_r">
               <span v-if="identityCode < 1" class="card_name gold_color f18">SVIP拿奖励，疯狂赚</span>
-              <span v-if="identityCode === 1" class="card_name gold_color f18">Kar98k🚫 <img class="img-responsive" src="../../assets/images/vip_icon.png" alt=""></span>
+              <span v-if="identityCode === 1" class="card_name gold_color f18">{{userInfo.nickname}} <img class="img-responsive" src="../../assets/images/vip_icon.png" alt=""></span>
               <span class="card_date">VIP期间已为你节省<span class="gold_color">￥0.00</span>元</span>
             </div>
           </div>
           <div class="card_c" v-if="identityCode > 1"></div>
           <div class="card_f inner_white">
-            <div>亲爱的少年锦时,</div>
+            <div>亲爱的<span>{{userInfo.nickname}}</span>,</div>
             <div>开通SVIP预计可多赚<span class="gold_color">￥8568.00</span></div>
             <div class="check-info" @click="showInfoToast">查看详细 ></div>
           </div>
@@ -25,27 +26,66 @@
         <!-- SVIP -->
         <div class="card" v-else-if="identityCode === 2">
           <div class="card_t">
-            <img class="user_avatar" src="../../assets/images/default.png" alt="">
+            <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+            <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
             <div class="card_t_r">
-              <span class="card_name gold_color f18">Kar98k🚫 <img class="img-responsive" src="../../assets/images/svip_icon.png" alt=""></span>
-              <span class="card_date">2020-12-12 到期</span>
+              <span class="card_name gold_color f18">{{userInfo.nickname}}<img class="img-responsive" src="../../assets/images/svip_icon.png" alt=""></span>
+              <span class="card_date">{{headInfo.svip_end_time}} 到期</span>
             </div>
           </div>
-          <div class="card_c"></div>
+          <div class="card_c">
+            <div class="inner_nums">
+              <span class="gold_col" :style="{'left':headInfo.earn/headInfo.Average*100 + '%'}">￥{{headInfo.earn}}</span>
+            </div>
+            <box gap="10px 0" style="position:relative">
+              <div class="progress" style="width:75%">
+                <div class="progeress_bar" :style="{'width':headInfo.earn/headInfo.Average*100 + '%'}"></div>
+              </div>
+              <span class="total_money">￥{{headInfo.Average}}</span>
+            </box>
+            <div class="inner_info">
+              <div class='info_msg info_l'>
+                <div>你当前已赚佣金</div>
+              </div>
+              <div class='info_msg info_r'>
+                <div>SVIP平均赚取佣金</div>                
+              </div>
+            </div>
+          </div>
           <div class="card_f">
-            
+            <p>{{iDCard}}</p>
           </div>
         </div>
         <!-- 渠道 -->
         <div class="card" v-else>
           <div class="card_t">
-            <img class="user_avatar" src="../../assets/images/default.png" alt="">
+            <img v-if="userInfo" class="user_avatar" :src="userInfo.avatar" alt="">
+            <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
             <div class="card_t_r">
-              <span class="card_name gold_color f18">Kar98k🚫<img class="img-responsive tubu-icon" src="../../assets/images/tubu_icon.png" alt=""></span>
+              <span class="card_name gold_color f18">{{userInfo.nickname}}<img class="img-responsive tubu-icon" src="../../assets/images/tubu_icon.png" alt=""></span>
             </div>
           </div>
-          <div class="card_c"></div>
+          <div class="card_c">
+            <div class="inner_nums">
+              <span class="gold_col" :style="{'left':headInfo.earn/headInfo.Average*100 + '%'}">￥{{headInfo.earn}}</span>
+            </div>
+            <box gap="10px 0" style="position:relative">
+              <div class="progress" style="width:75%">
+                <div class="progeress_bar" :style="{'width':headInfo.earn/headInfo.Average*100 + '%'}"></div>
+              </div>
+              <span class="total_money">￥{{headInfo.Average}}</span>
+            </box>
+            <div class="inner_info">
+              <div class='info_msg info_l'>
+                <div>你当前已赚佣金</div>
+              </div>
+              <div class='info_msg info_r'>
+                <div>SVIP平均赚取佣金</div>                
+              </div>
+            </div>
+          </div>
           <div class="card_f">
+            <p>{{iDCard}}</p>
           </div>
         </div>
       </div>
@@ -108,7 +148,8 @@ import Normal from './normal'
 import Vip from './vip'
 import Svip from './svip'
 import Tubu from './tubu'
-import { XDialog,TransferDomDirective as TransferDom } from 'vux'
+import { XDialog,TransferDomDirective as TransferDom,Box} from 'vux'
+import {svipcard,twodays,usersnum,statisticsmoney,statisticcustomer} from 'api'
 export default {
   directives: {
     TransferDom
@@ -118,7 +159,8 @@ export default {
     Normal,
     Vip,
     Svip,
-    Tubu
+    Tubu,
+    Box
   },
   computed:{
       ...mapGetters(['userInfo','identityCode'])
@@ -126,16 +168,31 @@ export default {
   data () {
     return {
       showHideOnBlur: false,
+      headInfo:{},
+      iDCard: 0
     }
   },
   methods: {
     showInfoToast(e){
-      console.log(e)
       this.showHideOnBlur = true
+    },
+    getCard(data){
+      svipcard(data).then(res =>{
+        if(res.code === 0){
+          this.headInfo = res.result.data
+          let IDnumbers = res.result.data.number  
+          var iDCard = IDnumbers.replace(/\s/g, '').replace(/(.{4})/g, "$1 ");
+          this.iDCard = iDCard
+        }
+      })
     }
   },
   mounted () {
-    console.log(this.identityCode)
+    let that = this
+    that.$nextTick(() =>{
+      let data = {uid:that.userInfo.uid}
+      that.getCard(data)
+    })
   }
 }
 </script>
@@ -191,6 +248,8 @@ export default {
           .user_avatar{
             width: 3.5rem;
             height: 3.5rem;
+            border-radius: 10px;
+            display: block;
           }
           .card_t_r{
             margin-left: 1rem;
@@ -198,6 +257,7 @@ export default {
             width: 100%;
             flex-direction: column;
             line-height: 1.5rem;
+            flex: 1;
             .card_name{
               flex: 1;
               color:#fff;
@@ -232,6 +292,45 @@ export default {
           position:relative;
           display:flex;
           flex-direction:column;
+        }
+        .inner_nums,.inner_info{
+            flex: .3;
+            display: flex;
+            justify-content: space-around;
+            font-size: .8rem;
+            color: #fff;
+            position: relative;
+            width: 75%;
+            line-height: 1.6rem;
+        }
+        .inner_nums .gold_col{
+            position: absolute;
+            left: 0;
+            background: #fffcfd;
+            border-radius: 5px;
+            color: #ecae5b;
+            padding: 0 5px;
+            margin-top: 10px;
+            line-height: 1.5rem;
+        }
+        .total_money{
+            position:absolute;
+            right:0;
+            color:#fff;
+            font-size:.6rem;
+            top:-4px;
+            width:25%; 
+            text-align:right;
+        }
+        .inner_info{
+          width: 100%;
+          text-align: left;
+          div{
+            flex: 1;
+          }
+          .info_r{
+            text-align: right
+          }
         }
         .card_f{
           color:#f2d48e;

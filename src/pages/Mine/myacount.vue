@@ -14,7 +14,7 @@
             </cell>
         </group>
         <group title="请选择已完成实名认证的提现方式，以免打款失败">
-            <x-input title="微信昵称" type="text"  text-align="right" disabled v-model="form.wechatName"></x-input>
+            <x-input title="微信昵称" type="text"  text-align="right" disabled :value="userInfo.nickname"></x-input>
             <x-input title="认证姓名"  is-type="china-name" type="text" placeholder="请输入姓名" text-align="right" v-model="form.fullName"></x-input>
         </group>
         <box gap="1rem 1rem">
@@ -25,7 +25,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import { Cell, CellBox, Group, XInput,Box } from 'vux'
-import {setfullname} from 'api'
+import {setfullname,getUserInfo} from 'api'
 const fullnameREG = /^[\u4E00-\u9FA5\uf900-\ufa2d·s]{2,20}$/ 
 export default {
     components: {
@@ -38,15 +38,23 @@ export default {
     data () {
         return {
             form:{
-                wechatName:"张三",
                 fullName:""
             }
         }
     },
     computed:{
-      ...mapGetters(['fullname','userInfo'])
+      ...mapGetters(['fullname','userInfo','token'])
     },
     methods: {
+        getUserInfo(data){
+            getUserInfo(data).then(res =>{
+                if(res.code === 0){
+                    this.$store.commit('SET_USER',res.result.data)
+                    this.$store.commit('SET_FULLNAME',res.result.data.fullname)
+                    this.form.fullName = res.result.data.fullname
+                }
+            })
+        },
         handleChange(e){
             let that = this
             if(that.form.fullName === ''){             
@@ -60,7 +68,7 @@ export default {
             that.$store.commit('SET_FULLNAME',that.form.fullName)
             let data = {
                 fullname: that.form.fullName,
-                token: that.$store.state.token
+                token: that.token
             }
             setfullname(data).then(res =>{
                 that.$Toast.success(res.msg)
@@ -71,6 +79,12 @@ export default {
         }
     },
     mounted () {
+        let that = this
+        that.$nextTick(() =>{
+            let data = {token:that.token}
+            that.getUserInfo(data)
+            that.form.fullName = that.userInfo.fullname
+        })
     }
 }
 </script>
