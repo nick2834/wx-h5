@@ -56,7 +56,7 @@
         <van-goods-action-mini-btn icon="wap-home" text="首页" @click="gobackhome"></van-goods-action-mini-btn>
         <div class="footer" v-if="hasDone">
           <div class="footer-box" v-if="identityCode <= 0 || identityCode == undefined">
-            <van-goods-action-big-btn @click="onClickBigBtn" to="/register">
+            <van-goods-action-big-btn @click="onClickBigBtn" to="/register?type=details">
               <p class="btn-text h6">升级VIP 多赚￥{{goodsTbkDetail.upgrade_subsidy}}</p>
               <p class="btn-text h3">立即升级</p>
             </van-goods-action-big-btn>
@@ -105,13 +105,13 @@
         <van-goods-action-mini-btn icon="wap-home" text="首页" @click="gobackhome"></van-goods-action-mini-btn>
         <div class="footer" v-if="hasDone">
           <div class="footer-box" v-if="identityCode <= 0 || identityCode == undefined">
-            <van-goods-action-big-btn @click="onClickBigBtn" to="/register">
+            <van-goods-action-big-btn @click="onClickBigBtn" to="/register?type=details">
               <p class="btn-text h6">升级VIP 多赚{{goodsTbkDetail.upgrade_subsidy}}元</p>
               <p class="btn-text h3">免费升级</p>
             </van-goods-action-big-btn>
           </div>
           <div class="footer-box" v-else-if="identityCode === 1">
-            <van-goods-action-big-btn @click="onClickBigBtn" to="/buysvip">
+            <van-goods-action-big-btn @click="onClickBigBtn" to="/buysvip?type=details">
               <p class="btn-text h6">升级SVIP 多赚{{goodsTbkDetail.upgrade_subsidy}}元</p>
               <p class="btn-text h3">立即升级</p>
             </van-goods-action-big-btn>
@@ -170,14 +170,16 @@ export default {
       goodsImages: [],
       hasAmount: false,
       showHideOnBlur: false,
-      hasDone: false
+      hasDone: false,
+      title: ""
     }
   },
   computed:{
       ...mapGetters(['comInfomation','identityCode'])
   },
   created () {
-    console.log(this.comInfomation,this.identityCode)
+      this.wxShare(this.title, '推荐一个超级好用的省钱工具')
+      
   },
   components: {
     XDialog,
@@ -192,6 +194,8 @@ export default {
       getDetails(data).then(res =>{
         if(res.code === 0){
           this.goodsDetail = res.result.data
+          console.log(res.result.data.item_title )
+          this.title = res.result.data.item_title 
           document.title = res.result.data.item_title 
         }
         this.isLoading = true
@@ -244,8 +248,7 @@ export default {
   mounted () {
     let that = this
     let comInfomation = that.$store.state.comInfomation
-    that.$nextTick(() =>{
-      console.log(that.$route)
+    that.$nextTick(() =>{  
       Storage.session.set('detailPath',that.$route.fullPath)
       let id = this.$route.params.id
       this.amountInfo = this.$route.params.info

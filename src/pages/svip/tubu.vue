@@ -66,7 +66,6 @@ import {mapGetters} from 'vuex'
 import echarts from 'echarts'
 import {Cell,Group,Tab, TabItem} from 'vux'
 import {svipcard,twodays,usersnum,statisticsmoney,statisticcustomer} from 'api'
-import data2 from './lint-color.json'
 export default {
     components: {
         Cell,
@@ -79,7 +78,6 @@ export default {
     },
     data () {
         return {
-            data2,
             usersNums: {},
             dayItem: 'today',
             todaysInfo: {},

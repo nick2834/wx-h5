@@ -1,8 +1,8 @@
 <template>
-  <div id="app">
-    <!-- <transition :name="transitionName"> -->
-    <transition>
-      <router-view keep-alive></router-view>
+  <div id="app" :class="[isIos ? 'xn-ios':'']">
+    <transition :name='transitionName'>
+    <!-- <transition> -->
+      <router-view></router-view>
     </transition>
     <tabbar slot="bottom" v-show="$route.path == '/index' || $route.path == '/svippage' || $route.path == '/rankpage'||$route.path == '/mine' ||$route.path == '/'">
       <tabbar-item link="/index" :selected="$route.path == '/index' || $route.path == '/'">
@@ -31,6 +31,8 @@
 
 <script>
 import {Tabbar, TabbarItem,ViewBox} from 'vux'
+import {configs} from 'api'
+import wx from 'weixin-js-sdk'
 export default {
   name: 'app',
   components:{
@@ -40,26 +42,32 @@ export default {
   },
   watch: {//使用watch 监听$router的变化
     $route(to, from) {
-      //如果to索引大于from索引,判断为前进状态,反之则为后退状态
-      if(to.meta.index > from.meta.index){
-        //设置动画名称
-        this.transitionName = 'slide-right';
-      }else{
-        this.transitionName = 'slide-left';
+      if(to.meta.index > 0){
+          if( to.meta.index < from.meta.index){
+              this.transitionName = 'slide-right';
+          }else{
+              this.transitionName = 'slide-left';
+          }
+      }else if(to.meta.index == 0 && from.meta.index > 0){
+          this.transitionName = 'slide-right';
       }
     }
   },
   created () {
-    
-    
+    this.wxShare(this.$route.meta.title, '推荐一个超级好用的省钱工具')
   },
   data() {
-    return{transitionName: ''}
+    return{transitionName: '',isIos:false}
   },
   methods: {
-    
+    getDevice(){
+        if (navigator.userAgent.match(/(iPhone|iPod|iPad);?/i)) {
+            this.isIos = true;
+        }
+    }
   },
   mounted () {
+    this.getDevice()
   }
 }
 </script>
@@ -130,27 +138,23 @@ export default {
 .slide-left-enter-active,
 .slide-left-leave-active {
     will-change: transform;
-    transition: all .5s cubic-bezier(.55,0,.1,1);
+    transition: all .3s;
     position: absolute;
     width:100%;
     left:0;
 }
-.slide-left-enter, .slide-right-leave-active {
-  opacity: 0;
-  -webkit-transform: translate(30px, 0);
-  transform: translate(30px, 0);
-}
-.slide-left-leave-active, .slide-right-enter {
-  opacity: 0;
-  -webkit-transform: translate(-30px, 0);
-  transform: translate(-30px, 0);
-}
-/* .slide-left-enter,.slide-right-leave-active {
+.slide-right-enter {
     transform: translateX(-100%);
 }
-.slide-right-enter,.slide-left-leave-active {
+.slide-right-leave-active {
     transform: translateX(100%);
-} */
+}
+.slide-left-enter {
+    transform: translateX(100%);
+}
+.slide-left-leave-active {
+    transform: translateX(-100%);
+}
 .van-collapse-item__content{
     font-size:.8rem;
     color:#333;

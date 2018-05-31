@@ -21,7 +21,7 @@
                         </span>
                     </div>
                 </div>
-                <router-link class="agreement" to="/">SVIP 服务协议 <i class="iconfont icon-information"></i></x-icon></router-link>
+                <router-link class="agreement" to="/agreement">SVIP 服务协议 <i class="iconfont icon-information"></i></x-icon></router-link>
             </div>
         </div>
         <div class="open check">
@@ -75,7 +75,7 @@ import FreeDom from 'components/freedom'
 import {mapGetters} from 'vuex'
 import { RadioGroup, Radio, Cell, CellGroup,SubmitBar,Field  } from 'vant'
 import Storage from 'good-storage'
-import {pay,codepay} from 'api'
+import {pay,codepay,getUserInfo} from 'api'
 import wx from 'weixin-js-sdk'
 export default {
     components: {
@@ -97,10 +97,18 @@ export default {
         ...mapGetters(['userInfo','identityCode','token'])
     },
     methods: {
+        getUserInfo(data){
+            getUserInfo(data).then(res =>{
+                console.log(res)
+                if(res.code === 0){
+                    this.$store.commit('SET_USER',res.result.data)
+                    this.$store.commit('SET_IDENTITYCODE',res.result.data.type)
+                }
+            })
+        },
         getPay(data){
             let that = this
-            pay(data).then(res =>{
-                
+            pay(data).then(res =>{   
                 if(res.code === 0){
                     var data = res.jsapi
                     let appId = data.appId;
@@ -127,6 +135,8 @@ export default {
                             paySign: paySign, // 支付签名
                             success: function(res) {
                                 that.$store.commit('SET_IDENTITYCODE',2)
+                                let data = {token:that,token}
+                                that.getUserInfo(data)
                                 let type = this.$route.query.type
                                 if(type === 'details'){
                                     that.$router.replace(Storage.session.get('detailPath'))
@@ -148,8 +158,21 @@ export default {
             })
         },
         getCodepay(data){
+            let that = this
             codepay(data).then(res =>{
-                console.log(res)
+                if(res.code === 0){
+                    that.$store.commit('SET_IDENTITYCODE',2)
+                    let data = {token:that,token}
+                    that.getUserInfo(data)
+                    let type = this.$route.query.type
+                    if(type === 'details'){
+                        that.$router.replace(Storage.session.get('detailPath'))
+                    }else{
+                        that.$router.replace('/svip')
+                    }
+                }else{
+                    that.$Toast(res.result.msg)
+                }
             })
         },
         onSubmitPay(e){

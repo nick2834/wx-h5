@@ -1,7 +1,7 @@
 <template>
     <section>
         <div class="head_btn">
-            <router-link to="/buysvip">
+            <router-link to="/register?type=svip">
                 <img class="img-responsive" src="../../assets/images/jiaru.png" alt="">
             </router-link>
         </div>
@@ -60,14 +60,20 @@
                 
             </li>
         </ul>
-        <router-link class="bottom-btn" to="/buysvip">
+        <router-link class="bottom-btn" to="/register?type=svip">
             <img class="img-responsive" src="../../assets/images/liji.png" alt="">
         </router-link>
     </section>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 export default {
-    
+    computed:{
+        ...mapGetters(['userInfo','identityCode'])
+    },
+    mounted () {
+        console.log(this.identityCode)
+    }
 }
 </script>
 <style lang="less" scoped>

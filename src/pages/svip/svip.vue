@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="advertbox">
-            <img class="img-responsive" src="../../assets/images/banner1.png" alt="">
+            <img class="img-responsive" src="../../assets/images/banner2.png" alt="">
         </div>
         <div class="power-box">
             <free-dom :title="'SVIP 6大特权：'"></free-dom>

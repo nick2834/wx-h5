@@ -15,7 +15,7 @@
       </router-link>
     </header>
     <div class="roll_ad" ref="adbox">
-      <router-link class="ad_box" to="/guide/7" tag="div"></router-link>
+      <router-link class="ad_box" to="/guide" tag="div"></router-link>
       <div to="mine" class="roll_box">
         <img class="roll_logo" src="../../assets/images/icon_ztkb.png" alt="">
         <div class="roll_list">
@@ -248,15 +248,6 @@
       },
       toSearch(e){
         this.$router.push({path:'search'})
-      },
-      //授权登录
-      login () {
-          // 通过cookie中保存的token 获取用户信息
-          authorizeLogin().then(res =>{
-              if(res.code === 0){
-                  window.location = res.url
-              }
-          })
       }
     },
     mounted () {

@@ -109,6 +109,7 @@ export default({
             outline: none;
             border-top-right-radius: 25px;
             border-bottom-right-radius: 25px;
+            padding-right: 10px;
         }
         .weui-icon-search{
             padding: 0 1rem !important;
@@ -124,7 +125,10 @@ export default({
             border-left:1px solid #e5e5e5;
             font-weight:bold;
             font-size: 1rem;
-            background: transparent;
+            background: #fff;
+            border-top-right-radius: 25px;
+            border-bottom-right-radius: 25px;
+            z-index:99
         }
     }
 }

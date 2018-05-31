@@ -9,16 +9,16 @@
         <input type="text" name="" id="" placeholder="请输入验证码" v-model="form.identicode">
         <div class="agreement">
             继续代表你已经同意
-            <router-link to="/">智淘助手用户注册协议</router-link>
+            <router-link to="/regist">智淘助手用户注册协议</router-link>
         </div>
         <x-button class="submitBtn" @click.native="handleSubmit">注册</x-button>
-        
-        <toast v-model="showToast" type="cancel">{{errVal}}</toast>
     </div>
 </template>
 <script>
+import {mapGetters} from 'vuex'
 import {Countdown,XButton,Toast} from 'vux'
-import {Register, IdentityCode} from 'api'
+import {Register, IdentityCode,getUserInfo} from 'api'
+import Storage from 'good-storage'
 const phoneReg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
 export default {
     data () {
@@ -32,8 +32,10 @@ export default {
             },
             showToast: false,
             btnval: '发送验证码',
-            errVal: '请输入正确的手机号'
         }
+    },
+    computed:{
+        ...mapGetters(['userInfo','identityCode','token'])
     },
     components: {
         Countdown,
@@ -41,9 +43,18 @@ export default {
         Toast
     },
     methods: {
+        getUserInfo(data){
+            getUserInfo(data).then(res =>{
+                console.log(res)
+                if(res.code === 0){
+                    this.$store.commit('SET_USER',res.result.data)
+                    this.$store.commit('SET_IDENTITYCODE',res.result.data.type)
+                }
+            })
+        },
         getCode(e){   
             if(this.start || this.form.phone == '' || !phoneReg.test(this.form.phone)){
-                this.showToast = true
+                this.$Toast('请输入正确手机号！')
                 return
             }
             this.start = true
@@ -51,11 +62,15 @@ export default {
             this.btnval = 's后重试'
             let data = {
                 phone: this.form.phone,
-                token: null
+                token: this.token
             }
-            console.log(data)
             IdentityCode(data).then(res =>{
                 console.log(res)
+                if(res.code === 0){
+                    this.$Toast(res.msg)
+                }else{
+                    this.$Toast(res.msg)
+                }
             })
         },
         onBlur(e){
@@ -66,18 +81,34 @@ export default {
             this.time = null
             this.btnval = '发送验证码'
         },
-        handleSubmit(e){
+        handleSubmit(e){ 
+            let that = this
             if(this.form.phone == '' || this.form.identicode == '' || !phoneReg.test(this.form.phone)){
                 return
             }
             let data = {
                 phone: this.form.phone,
                 code: this.form.identicode,
-                token: null
+                token: this.token
             }
-            console.log(data)
             Register(data).then(res =>{
                 console.log(res)
+                if(res.code === 0){
+                    let datas = {token: that.token}
+                    that.getUserInfo(datas)
+                    that.$Toast(res.msg)
+                    let type = that.$route.query.type
+                    if (type === 'zhuce') {
+                        that.$router.replace('/mine')
+                    } else if(type === 'details'){
+                        that.$router.replace(Storage.session.get('detailPath'))
+                    } else {
+                        that.$router.replace('/buysvip')
+                    } 
+                    // this.$router.replace('/mine')
+                }else{
+                    that.$Toast(res.msg)
+                }
             })
         }
     },
@@ -115,7 +146,7 @@ export default {
             position: absolute;
             right: 10px;
             top: .5rem;
-            width: 85px;
+            // width: 85px;
             background: #ffffff;
             font-size: .8rem;
             border: 1px solid #eaeaea;

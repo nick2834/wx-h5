@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Storage from 'good-storage'
-console.log(Storage)
 Vue.use(Vuex)
 const store = new Vuex.Store({
     state:{

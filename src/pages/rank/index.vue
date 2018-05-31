@@ -1,9 +1,29 @@
 <template>
   <div class="rank_box">
     <div class="rank_head" ref="cascade">
-      <cascade-loop :cur-width="clientWidth/3" :all-width="clientWidth" :all-height="clientWidth/3"
+      <!-- <cascade-loop :cur-width="clientWidth/3" :all-width="clientWidth" :all-height="clientWidth/3"
       :cur-height="clientWidth/3" :scale="0.8"
-      ></cascade-loop>
+      ></cascade-loop> -->
+      <div class="circle-box">
+        <x-circle
+          :percent="space.percentage"
+          :stroke-width="8"
+          :trail-width="7"
+          stroke-color="#ffffff"
+          trail-color="#366ec1">
+          <span style="color:#ffffff;font-size:1.2rem;">{{space.percentage}}%</span>
+        </x-circle>
+      </div>
+      <div class="rank-message">
+        <div class='msg msg_l'>
+            <span>淘宝客户数</span>
+            <span>{{space.taobao}}</span>
+        </div>
+        <div class='msg msg_r'>
+            <span>智淘客户数</span>
+            <span>{{space.zhitao}}</span>
+        </div>
+      </div>
     </div>
     <div class="rank_content">
       <div class="tab_box">
@@ -45,7 +65,7 @@
                   <span>{{thisMonth}}</span>
                 </div>
               </div>
-              <div class="rank_scroll_list">
+              <div class="rank_scroll_list" v-if="earnListItem.length > 0">
                 <div class="item_list" v-for="(item,index) in earnListItem" :key="index">
                   <img class="rank_card img-responsive" src="../../assets/images/icon_jin@2x.png" alt="" v-if="index <= 0">
                   <img class="rank_card img-responsive" src="../../assets/images/icon_yin@2x.png" alt="" v-else-if="index === 1">
@@ -58,6 +78,9 @@
                     <span class="rank_numbers">{{item.top}}</span>
                   </div>
                 </div>
+              </div>
+              <div class="rank_scroll_list" v-else>
+                <place-holder :title="'本月暂无榜单'"></place-holder>
               </div>
             </div>
           </div>
@@ -78,11 +101,12 @@
 </template>
 
 <script>
-  import CascadeLoop from 'components/CascadeLoop'
+  // import CascadeLoop from 'components/CascadeLoop'
+  import PlaceHolder from 'components/placeholder'
   import {mapGetters} from 'vuex'
-  import { Scroller } from 'vux'
+  import { Scroller,XCircle } from 'vux'
   import { Popup,Picker  } from 'vant'
-  import {getEaring,getExpand} from 'api'
+  import {getSpace,getEaring,getExpand} from 'api'
   var month = new Date().getMonth();
   var newMonthArray = [];
   var monthArray=['1月榜单 01.01-01.31',
@@ -106,8 +130,9 @@ for (let i in monthArray) {
 export default {
   name: 'rankpage',
   components: {
-    CascadeLoop,
+    PlaceHolder,
     Scroller,
+    XCircle,
     'van-popup':Popup,
     'van-picker': Picker 
   },
@@ -129,7 +154,8 @@ export default {
         thisMonth:"",
         meExpend:[],
         isME:{},
-        meExpend:{}
+        meExpend:{},
+        space: {}
     }
   },
   computed:{
@@ -141,6 +167,13 @@ export default {
     }
   },
   methods: {
+    getSpaceList(){
+      getSpace().then(res =>{
+        if(res.code === 0){
+          this.space = res.result[2]
+        }
+      })
+    },
     getEaringList(data){
       getEaring(data).then(res =>{
         let that = this
@@ -168,6 +201,7 @@ export default {
     handelTabbox(index){
       this.isActived = index
       this.tabDefault = index + 1
+      this.thisMonth = this.monthArray[month-1]
       this.$refs.scrollerEvent.reset({top: 0})
       let data = {
         token: this.token,
@@ -192,13 +226,13 @@ export default {
         date: index + 1,
         uid: this.userInfo.uid
       } 
+      console.log(value)
+
       if(this.tabDefault === 1){
         this.getEaringList(data)
       }else{
         this.getExpandList(data)
       }
-      
-      
     }
   },
   mounted () {
@@ -221,6 +255,7 @@ export default {
         uid: this.userInfo.uid
       }
       that.getEaringList(data)
+      that.getSpaceList()
     })
     
   }
@@ -233,6 +268,40 @@ export default {
   background: #317df3;
   display: flex;
   align-items: center;
+  position: relative;
+  .circle-box{
+    width: 8rem;
+    height: 8rem;
+    margin: 0 auto;
+  }
+  .rank-message{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    .msg{
+      text-align: center;
+      flex: 1;
+      color: #ffffff;
+      font-size: 1.1rem;
+      padding-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 1rem;
+      span{
+        line-height: 2;
+      }
+    }
+    .msg_l{
+      padding-right: 1rem;
+    }
+    .msg_r{
+      padding-left: 1rem;
+    }
+  }
 }
 .tab_box{
   display: flex;

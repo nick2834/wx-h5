@@ -2,19 +2,13 @@
   <section class="page-content">
     <div class="card_content" :style="{'height':scrollHeight}" ref="cardbox">
         <div class="filter-box" :style="{'backgroundImage':'url(' + imgUrl + ')'}"></div>
-        <!-- <img 
-            ref="codeImg"
-            @touchstart='touchStart'   
-            @touchmove='touchMove'   
-            @touchend='touchEnd' 
-            class="img-responsive" 
-            :src="imgUrl" alt="" @click="getPreview"> -->
             <img 
             ref="codeImg"
             class="img-responsive" 
             :src="imgUrl" alt="" @click="getPreview">
     </div>
     <div class="card_footer" ref="cardft">
+        <p style="line-height:1.5rem;font-size:.8rem;">点击上图长按可转发</p>
         <scroller lock-y :scrollbar-x=false>
             <div class="swiperFooter" :style="{'width':(imgList.length)*5 + 'rem'}">
                 <div class="footer-item" :class="{actived:activeIndex == index}" v-for="(item,index) in imgList" :key="index" :dataid='index' ref="swiperFooter" @click="tabClick(index)" @click.prevent="handleChange(item)">
@@ -33,6 +27,7 @@ import { Scroller  } from 'vux'
 import { setTimeout } from 'timers';
 import Storage from 'good-storage'
 import {qrcodelist,poster} from 'api'
+const APPID = 'wx87b3acb00474dd24'
 var touchDot = 0;//触摸时的原点
 var time = 0;//  时间记录，用于滑动时且时间小于1s则执行左右滑动
 var interval = "";// 记录/清理 时间记录
@@ -91,7 +86,8 @@ export default{
             this.defaultCode = item.code
             let data = {
                 code: item.code,
-                token: this.token
+                token: this.token,
+                appid: APPID
             }
             this.getPoster(data)
         },
@@ -145,7 +141,7 @@ export default{
            that.clientHeight = `${document.documentElement.clientHeight}`
            that.scrollHeight = (that.clientHeight - that.$refs.cardft.offsetHeight) + 'px'
            let data = {token:that.token}
-           let data2 = {token:that.token,code:that.defaultCode}
+           let data2 = {token:that.token,code:that.defaultCode,appid: APPID}
            that.getList(data)
            that.getPoster(data2)
        })
@@ -184,11 +180,14 @@ export default{
         }
     }
     .card_footer{
-        height: 6rem;
+        height: 7.5rem;
         position: absolute;
         bottom: 0;
         width: 100%;
         background: #ffffff;
+        p{
+            text-align: center;
+        }
         .swiperFooter{
             height: 6rem;
             position: relative;

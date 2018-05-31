@@ -117,13 +117,13 @@
             </div>
             <ul class="dialog-list">
               <li class="clearfix">
-                <router-link to="/">可优惠（SVIP 专享返佣）<span>￥516></span></router-link>
+                <router-link to="/power">可优惠（SVIP 专享返佣）<span>￥516></span></router-link>
               </li>
               <li class="clearfix">
-                <router-link to="/">可享推荐奖励（二级奖励）<span>￥7000></span></router-link>
+                <router-link to="/power">可享推荐奖励（二级奖励）<span>￥7000></span></router-link>
               </li>
               <li class="clearfix">
-                <router-link to="/">可享客户返佣（二级返佣）<span>￥1052></span></router-link>
+                <router-link to="/power">可享客户返佣（二级返佣）<span>￥1052></span></router-link>
               </li>
               <li class="clearfix">
                 <div>加入SVIP预计为你多赚<span>￥8783.60</span></div>
@@ -132,7 +132,10 @@
           </div>
           <p></p>
           <div class="dialog-footer">
-            <router-link to="/buysvip">
+            <router-link to="/register?type=svip" v-if="identityCode < 1 || identityCode == undefined">
+              <img class="img-responsive" src="../../assets/images/btn_jr.png" alt="">
+            </router-link>
+            <router-link to="/buysvip" v-else>
               <img class="img-responsive" src="../../assets/images/btn_jr.png" alt="">
             </router-link>
           </div>
@@ -317,7 +320,7 @@ export default {
             position:absolute;
             right:0;
             color:#fff;
-            font-size:.6rem;
+            font-size:.8rem;
             top:-4px;
             width:25%; 
             text-align:right;

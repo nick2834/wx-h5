@@ -29,6 +29,10 @@ axios.interceptors.response.use(response => {
     // 对响应错误做点什么
     return Promise.reject(error);
 });
+//分享接口
+export const configs = (params) => {
+    return axios.get(process.env.API_HOST + `api/wx/jsSdk`,{params:params}).then(res => res.data)
+}
 
 //授权接口
 export const authorizeLogin = () => {

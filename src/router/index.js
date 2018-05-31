@@ -17,6 +17,7 @@ const SearchList = resolve => require([ 'pages/search/list'], resolve)
 const Custom = resolve => require([ 'pages/Mine/custom'], resolve)
 const Code = resolve => require([ 'pages/Mine/code'], resolve)
 const Register = resolve => require([ 'pages/Mine/register'], resolve)
+const Success = resolve => require([ 'pages/Mine/success'], resolve)
 const Questions = resolve => require([ 'pages/Mine/question'], resolve)
 const Income = resolve => require([ 'pages/Mine/income'], resolve)
 const Acount = resolve => require([ 'pages/Mine/acount'], resolve)
@@ -24,6 +25,9 @@ const Myacount = resolve => require([ 'pages/Mine/myacount'], resolve)
 const Withdraw = resolve => require([ 'pages/Mine/withdraw'], resolve)
 const Record = resolve => require([ 'pages/Mine/record'], resolve)
 const RecordDetail = resolve => require([ 'pages/Mine/recodetail'], resolve)
+const Contact = resolve => require([ 'pages/Mine/contact'], resolve)
+const Agreement = resolve => require([ 'pages/agreement'], resolve)
+const Registment = resolve => require([ 'pages/agreement/regist'], resolve)
 Vue.use(Router)
 const router =  new Router({
   // mode: 'history',
@@ -33,7 +37,7 @@ const router =  new Router({
       name: 'Index',
       component: Index,
       meta:{
-        title:"智淘APP",
+        title:"智淘助手",
         index: 0
       }
     },
@@ -120,6 +124,12 @@ const router =  new Router({
       name: 'Register',
       component : Register,
       meta: { title:"注册" ,index: 12 }
+    },
+    {
+      path: '/success',
+      name: 'Success',
+      component : Success,
+      meta: { title:"提现结果" ,index: 12 }
     },
     {
       path: '/custom',
@@ -210,12 +220,31 @@ const router =  new Router({
       }
     },
     {
-      path: '/Index',
-      redirect: '/'
+      path: '/contact',
+      name: 'Contact',
+      component: Contact,
+      meta:{
+        title:"联系我们",index: 8
+      }
     },
     {
-      path: '/redirect_uri',
-      name: '网页授权',
+      path: '/agreement',
+      name: 'Agreement',
+      component: Agreement,
+      meta:{
+        title:"用户协议",index: 8
+      }
+    },
+    {
+      path: '/regist',
+      name: 'Registment',
+      component: Registment,
+      meta:{
+        title:"用户注册协议",index: 8
+      }
+    },
+    {
+      path: '/Index',
       redirect: '/'
     },
     {
@@ -233,13 +262,14 @@ function getUrlParms(name){
 }
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
-  // let userInfo = {"uid":420,"nickname":"少年锦时","fullname":"","mobile":18968038986,"avatar":"https://wx.qlogo.cn/mmopen/vi_32/zPDgRLJYvWAeE6cOciankEwrZyzFHXgHa8xHodU9MpHibicTTGR7Fr5Md7okzPr8Iribz5fLbWtcxkMshk1JbpbQeg/132","money":"0.00","type":3,"status":0,"today_deal_money":"0.00","today_grant_money":"0.00","totalmoney":0}
+  // let userInfo = {"uid":420,"nickname":"少年锦时","fullname":"","mobile":18968038986,"avatar":"https://wx.qlogo.cn/mmopen/vi_32/zPDgRLJYvWAeE6cOciankEwrZyzFHXgHa8xHodU9MpHibicTTGR7Fr5Md7okzPr8Iribz5fLbWtcxkMshk1JbpbQeg/132","money":"0.00","type":1,"status":0,"today_deal_money":"0.00","today_grant_money":"0.00","totalmoney":0}
   // store.commit('SET_USER',userInfo)
-  // store.commit('SET_TOKEN',"YTo0OntzOjM6InVpZCI7aTo0NDM7czo2OiJvcGVuaWQiO3M6Mjg6Im9RTEdHNUVMZktfZlZGWG53Qm5DeDF5THNQcjgiO3M6NDoidGltZSI7aToxNTI3NTc3MjQyO3M6Mzoia2V5IjtzOjMyOiI1ZmIxNjE3YmYyNjU3MjM5NzI0MjA4YTZlYzE0NjQyYSI7fQ")
-  // // store.commit('SET_IDENTITYCODE',userInfo.type)
+  // store.commit('SET_TOKEN',"YTo0OntzOjM6InVpZCI7aTo0MjA7czo2OiJvcGVuaWQiO3M6Mjg6Im9mRnUydzVNRUJFa2VESEdVM1VaZ1VTQ21xc1UiO3M6NDoidGltZSI7aToxNTI3NjQzMzM2O3M6Mzoia2V5IjtzOjMyOiIxZDU1ODhmMzcxZmIxZWQwMDQ1NzAwNTM1ZTFhZjAyYyI7fQ==")
+  // store.commit('SET_IDENTITYCODE',userInfo.type)
+  // next()
   if ((!Storage.session.get('token') && !store.state.token && !store.state.hasLogin)) {
     // 第一次访问
-    console.log('授权登录')
+    // console.log('授权登录')
     // 跳转到微信授权页面，微信授权地址通过服务端获得
     authorizeLogin().then(res => {
       if (res.code === 0) {
@@ -251,7 +281,6 @@ router.beforeEach((to, from, next) => {
     let data = {
       code: getUrlParms('code')
     }
-    // 刷新页面，获取数据存入vuex
     wxLogin(data).then(res => {
       if (res.code === 0) {
         store.commit('SET_TOKEN',res.result.data.token)
@@ -273,10 +302,9 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     // 已经登录
-    console.log('已登录')
+    // console.log('已登录')
     next()
   }
-  next()
 });
 
 export default router

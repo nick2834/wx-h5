@@ -74,7 +74,7 @@ export default {
     position: relative;
     text-align: right;
     color: #6D6C68;
-    font-size: .6rem;
+    font-size: .8rem;
     padding-right: 1rem;
     &:after {
         content: " ";

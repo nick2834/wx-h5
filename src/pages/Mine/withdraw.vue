@@ -14,7 +14,7 @@
             <cell :title="'收款方式'" :value="'微信零钱'"></cell>
             <cell :title="'姓名'">
                 <div>
-                    <input @blur="onBlur" class="nickname" name="nickname" type="text"  v-model="form.nickname" placeholder="请输入提现用户姓名">
+                    <input class="nickname" name="nickname" type="text"  v-model="form.nickname" placeholder="请输入提现用户姓名">
                 </div>
             </cell>
             <cell :title="'提取金额'">
@@ -34,6 +34,7 @@
 import {mapGetters} from 'vuex'
 import { Cell,Group,Alert  } from 'vux'
 import {getUserInfo,extract} from 'api'
+var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
 const NAMEREG = /^([a-zA-Z0-9\u4e00-\u9fa5\·]{1,10})$/
 export default {
     components: {
@@ -67,22 +68,32 @@ export default {
         getExtract(data){
             extract(data).then(res =>{
                 if(res.code === 0){
-                    this.$Toast(res.msg)
-                    let datas = {token:that.token}
-                    that.getUserInfo(datas)
+                    this.$router.push('/success')
                 }else{
-                    this.$Toast(res.msg)
+                    this.errVal = res.msg
+                    this.showToast = true
                 }
             })
         },
-        onBlur(e){
-            let that = this
-            let nickname = that.form.nickname
-            console.log(that.form)
-        },
         handleSubmit(e){
             let that = this
-            if(that.form.nickname === '' || that.form.money === ''){
+            if(that.form.nickname === ''){
+                this.errVal = '请输入正确的姓名'
+                that.showToast = true
+                return
+            }
+            if(!reg.test(that.form.money)){
+                this.errVal = '请输入正确的金额'
+                that.showToast = true
+                return
+            }
+            if(that.form.money < 1){
+                this.errVal = '提现金额最低1元'
+                that.showToast = true
+                return
+            }
+            if(that.form.money === ''){
+                this.errVal = '提现金额不能为空'
                 that.showToast = true
                 return
             }

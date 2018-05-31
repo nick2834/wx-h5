@@ -6,7 +6,8 @@
           <img v-else class="user_avatar" src="../../assets/images/default.png" alt="">
           <div class="head_info">
             <span class="username"><span>{{userInfo.nickname}}</span><img v-if="identityCode === 1" class="img-responsive" style="width:1.5rem" src="../../assets/images/vip_icon.png" alt=""></span>
-            <router-link class="infomsg" to="/register">免费升级 ></router-link>
+            <router-link v-if="identityCode < 1 || identityCode == undefined" class="infomsg" to="/register?type=zhuce">免费升级 ></router-link>
+            <router-link v-else class="infomsg" to="/buysvip">成为SVIP ></router-link>
           </div>
           <router-link class="usermoney" to="/acount">
             <span class="money">{{userInfo.money}}</span>
@@ -48,9 +49,9 @@
         </router-link>
         <span class="line"></span>
       </section>
-      <div class="footer" v-if="identityCode <= 1 || identityCode == undefined">
+      <div class="footer" v-if="identityCode <= 0 || identityCode == undefined">
         <group>
-        <cell title="联系客服" :link="{path:'/'}">
+        <cell title="联系客服" :link="{path:'/contact'}">
           <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_kf.png">
         </cell>
         <cell title="常见问题" :link="{path:'/questions'}">
@@ -69,7 +70,7 @@
         <cell title="收入明细" :link="{path:'/income'}">
           <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_srmx.png">
         </cell>
-        <cell title="联系客服" :link="{path:'/'}">
+        <cell title="联系客服" :link="{path:'/contact'}">
           <img slot="icon" width="16" style="display:block;margin-right:5px;" src="../../../static/images/btn_kf.png">
         </cell>
         <cell title="常见问题" :link="{path:'/questions'}">
@@ -83,6 +84,7 @@
 import {mapGetters} from 'vuex'
 import { Icon,XSwitch,Group,Cell} from 'vux'
 import {getUserInfo} from 'api'
+import { userInfo } from 'os';
 export default({
   data () {
     return {
@@ -102,7 +104,8 @@ export default({
     getUserInfo(data){
       getUserInfo(data).then(res =>{
         if(res.code === 0){
-
+            this.$store.commit('SET_USER',res.result.data)
+            // this.$store.commit('SET_IDENTITYCODE',res.result.data.type)
         }
       })
     }
