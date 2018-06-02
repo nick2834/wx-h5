@@ -58,7 +58,7 @@
           <div class="footer-box" v-if="identityCode <= 0 || identityCode == undefined">
             <van-goods-action-big-btn @click="onClickBigBtn" to="/register?type=details">
               <p class="btn-text h6">升级VIP 多赚￥{{goodsTbkDetail.upgrade_subsidy}}</p>
-              <p class="btn-text h3">立即升级</p>
+              <p class="btn-text h3">免费升级</p>
             </van-goods-action-big-btn>
             <van-goods-action-big-btn 
               v-clipboard:copy="goodsDetail.item_title + goodsTbkDetail.taotoken"
@@ -274,6 +274,9 @@ export default {
 
 <style lang="less" scoped>
 @import '~vux/src/styles/close';
+.page-container{
+  min-height:100vh;
+}
 .goods_container{
   padding-bottom: 50px;
   background: #ffffff;

@@ -160,7 +160,7 @@ const router =  new Router({
       name: 'Search',
       component: Search,
       meta:{
-        title:"搜素",index: 6
+        title:"搜索",index: 6
       }
     },
     {
@@ -262,15 +262,12 @@ function getUrlParms(name){
 }
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
-  // let userInfo = {"uid":420,"nickname":"少年锦时","fullname":"","mobile":18968038986,"avatar":"https://wx.qlogo.cn/mmopen/vi_32/zPDgRLJYvWAeE6cOciankEwrZyzFHXgHa8xHodU9MpHibicTTGR7Fr5Md7okzPr8Iribz5fLbWtcxkMshk1JbpbQeg/132","money":"0.00","type":1,"status":0,"today_deal_money":"0.00","today_grant_money":"0.00","totalmoney":0}
+  // let userInfo = {"uid":420,"nickname":"少年锦时","fullname":"","mobile":18968038986,"avatar":"https://wx.qlogo.cn/mmopen/vi_32/zPDgRLJYvWAeE6cOciankEwrZyzFHXgHa8xHodU9MpHibicTTGR7Fr5Md7okzPr8Iribz5fLbWtcxkMshk1JbpbQeg/132","money":"0.00","type":2,"status":0,"today_deal_money":"0.00","today_grant_money":"0.00","totalmoney":0}
   // store.commit('SET_USER',userInfo)
   // store.commit('SET_TOKEN',"YTo0OntzOjM6InVpZCI7aTo0MjA7czo2OiJvcGVuaWQiO3M6Mjg6Im9mRnUydzVNRUJFa2VESEdVM1VaZ1VTQ21xc1UiO3M6NDoidGltZSI7aToxNTI3NjQzMzM2O3M6Mzoia2V5IjtzOjMyOiIxZDU1ODhmMzcxZmIxZWQwMDQ1NzAwNTM1ZTFhZjAyYyI7fQ==")
   // store.commit('SET_IDENTITYCODE',userInfo.type)
   // next()
   if ((!Storage.session.get('token') && !store.state.token && !store.state.hasLogin)) {
-    // 第一次访问
-    // console.log('授权登录')
-    // 跳转到微信授权页面，微信授权地址通过服务端获得
     authorizeLogin().then(res => {
       if (res.code === 0) {
         store.commit('HASLOGIN',true)

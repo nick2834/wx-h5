@@ -1,10 +1,14 @@
 <template>
-    <section class="page-content" :style="{'minHeight':clientHeight}">
+    <section class="page-content">
         <div class='search-box' ref="searchBox">
             <div class='search'>
-                <icon type="search"></icon>
+                <!-- <icon type="search"></icon>
                 <input class="search_input" type="text" placeholder="" name="value" v-model="searchVal">
-                <div class="search_btn" @click="searchBtn">搜优惠券</div>
+                <div class="search_btn" @click="searchBtn">搜优惠券</div> -->
+                 <x-input title="发送验证码" class="weui-vcode" name="value" v-model="searchVal">
+                    <div slot="label"><icon type="search"></icon></div>
+                    <button slot="right" class="search_btn" @click="searchBtn">搜优惠券</button>
+                </x-input>
             </div>
         </div>
         <div class="check_tab" ref="tabBox">
@@ -31,7 +35,8 @@
                 <van-switch v-model="value" @change="switchChange" />
             </van-cell-group>
         </div>
-        <div style="overflow:hidden">
+        <!-- <div style="overflow:hidden;position:fixed" :style="{'height':boxHeight + 'px','top':-scrollHeight + 'px'}"> -->
+        <div style="overflow:hidden;">
             <scroller lock-x :height="scrollHeight" @on-scroll-bottom="onScrollBottom" ref="scrollerBottom" :scroll-bottom-offst="200">
                 <div class="shop_box" v-if="goodsList.length > 0" v-cloak>
                     <div class="box_item" v-for="(item,index) in goodsList" @click="toDetail(item)" :key="item.item_id">
@@ -64,7 +69,7 @@
 </template>
 <script>
 import { Cell, CellGroup,Switch } from 'vant'
-import { Icon,XSwitch,Scroller,LoadMore,Loading} from 'vux'
+import { Icon,XSwitch,Scroller,LoadMore,Loading,XInput} from 'vux'
 import PlaceHolder from 'components/placeholder'
 import {getSearch} from 'api'
 import {saveSearch} from '../../../static/js/cache.js'  //引用本地存储js
@@ -88,7 +93,8 @@ export default({
         clientHeight: 0,
         onFetching: false,
         scrollHeight: '0px',
-        isLoading:false
+        isLoading:false,
+        boxHeight: '0px'
     }
   },
   components: {
@@ -100,7 +106,8 @@ export default({
     'vanCellGroup':CellGroup,
     'vanSwitch':Switch,
     PlaceHolder,
-    Loading
+    Loading,
+    XInput
   },
   methods: {
     toFixed(val){
@@ -151,7 +158,7 @@ export default({
                 that.goodsList = []
             }
             that.$nextTick(() =>{
-                this.$refs.scrollerBottom.reset({top: 0})
+                that.$refs.scrollerBottom.reset()
             })
             that.isLoading = false
         })
@@ -208,6 +215,7 @@ export default({
             sort: that.sortNo
         }
         that.fetchList(data)
+        that.$refs.scrollerBottom.reset()
     },
     //价格筛选
     priceCLICK(e){
@@ -271,19 +279,37 @@ export default({
     }
     that.$nextTick(() =>{
         that.clientHeight = `${document.documentElement.clientHeight}px`
-        that.scrollHeight = String(-that.$refs.searchBox.offsetHeight - that.$refs.searchBox.offsetHeight - that.$refs.switchBox.offsetHeight)
-        this.$refs.scrollerBottom.reset({top: 0})
+        that.scrollHeight = String(-that.$refs.searchBox.offsetHeight - that.$refs.tabBox.offsetHeight - that.$refs.switchBox.offsetHeight)
+        that.boxHeight = document.documentElement.clientHeight - that.$refs.searchBox.offsetHeight - that.$refs.switchBox.offsetHeight - that.$refs.tabBox.offsetHeight
+        this.$refs.scrollerBottom.reset()
         if(that.searchVal === '') return
         that.fetchList(data)
     })
+   
+  },
+  updated() {
+    //   重新更新dom
+    let that = this
+    that.$nextTick(() =>{
+        that.clientHeight = `${document.documentElement.clientHeight}px`
+        that.scrollHeight = String(-that.$refs.searchBox.offsetHeight - that.$refs.tabBox.offsetHeight - that.$refs.switchBox.offsetHeight)
+        that.boxHeight = document.documentElement.clientHeight - that.$refs.searchBox.offsetHeight - that.$refs.switchBox.offsetHeight - that.$refs.tabBox.offsetHeight
+        this.$refs.scrollerBottom.reset()
+    })
+    
   }
 })
 </script>
 <style lang="less" scoped>
 @import '~vux/src/styles/1px.less';
 @import '~vux/src/styles/center.less';
+.vux-x-input{
+    width: 100%;
+    padding: 10px 0 10px 10px;
+}
 .page-content{
     background: #ffffff;
+    min-height: 100vh;
 }
 .search-box{
     padding:.5rem 1rem;
@@ -312,8 +338,8 @@ export default({
             line-height: 2.5rem
         }
         .search_btn{
-            position: absolute;
-            right: 0;
+            // position: absolute;
+            // right: 0;
             padding: 0 1rem;
             color:#317ef2;
             line-height: 2.5rem;

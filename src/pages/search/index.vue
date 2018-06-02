@@ -2,9 +2,14 @@
 <div class="page-content">
     <div class='search-box'>
         <div class='search'>
-            <icon type="search"></icon>
+            <!-- <icon type="search"></icon>
             <input class="search_input" type="text" placeholder="" v-model="searchVal">
-            <button class="search_btn" @click="toList">搜优惠券</button>
+            <button class="search_btn" @click="toList">搜优惠券</button> -->
+            <x-input title="发送验证码" class="weui-vcode" v-model="searchVal">
+                <div slot="label"><icon type="search"></icon></div>
+                <!-- <x-button slot="right" type="primary" mini>搜优惠券</x-button> -->
+                <button slot="right" class="search_btn" @click="toList">搜优惠券</button>
+            </x-input>
         </div>
     </div>
     <div class='search_title'>
@@ -12,7 +17,7 @@
         <span @click='clearStorage'>清空</span>
     </div>
     <div class="search_list">
-        <router-link v-for="(item,index) in searchList" :key="index" :to="{ name: 'SearchList', params: { items: item }}" class="list_item">{{item}}</router-link>
+        <router-link style="-webkit-box-orient:vertical;" v-for="(item,index) in searchList" :key="index" :to="{ name: 'SearchList', params: { items: item }}" class="list_item">{{item}}</router-link>
     </div>
     <div v-transfer-dom>
         <confirm v-model="IsShow"
@@ -27,7 +32,7 @@
 </div>
 </template>
 <script>
-import { XInput,Icon,Confirm,TransferDomDirective as TransferDom  } from 'vux'
+import { XInput,Icon,Confirm,TransferDomDirective as TransferDom,XButton  } from 'vux'
 import {saveSearch} from '../../../static/js/cache.js'  //引用本地存储js
 import storage from 'good-storage'  //引入good-storage包
 var searchData = []
@@ -44,6 +49,7 @@ export default({
   },
   components: {
       XInput,
+      XButton,
       Icon,
       Confirm  
   },
@@ -82,6 +88,10 @@ export default({
 })
 </script>
 <style lang="less" scoped>
+.vux-x-input{
+    width: 100%;
+    padding: 10px 0 10px 10px;
+}
 .page-content{
     position: fixed;
     top: 0;
@@ -112,12 +122,13 @@ export default({
             padding-right: 10px;
         }
         .weui-icon-search{
-            padding: 0 1rem !important;
+            // padding: 0 1rem !important;
+            padding-right: 1rem;;
             line-height: 2.5rem
         }
         .search_btn{
-            position: absolute;
-            right: 0;
+            // position: absolute;
+            // right: 0;
             padding: 0 1rem;
             color:#317ef2;
             line-height: 2.5rem;
@@ -170,6 +181,7 @@ export default({
         -webkit-box-orient:vertical;
         -webkit-line-clamp:1;
         overflow:hidden;
+        max-width: 33.333%;
     }
 }
 </style>

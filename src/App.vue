@@ -38,7 +38,7 @@ export default {
   components:{
     ViewBox,
     Tabbar,
-    TabbarItem 
+    TabbarItem
   },
   watch: {//使用watch 监听$router的变化
     $route(to, from) {
@@ -54,7 +54,7 @@ export default {
     }
   },
   created () {
-    this.wxShare(this.$route.meta.title, '推荐一个超级好用的省钱工具')
+        this.wxShare(this.$route.meta.title, '推荐一个超级好用的省钱工具')
   },
   data() {
     return{transitionName: '',isIos:false}
@@ -67,6 +67,9 @@ export default {
     }
   },
   mounted () {
+    this.$Mui.init({
+      swipeBack: true //启用右滑关闭功能
+    })
     this.getDevice()
   }
 }

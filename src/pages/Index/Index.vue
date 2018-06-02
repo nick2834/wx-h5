@@ -104,7 +104,8 @@
         scrollBoxHeight: 0,
         scrollHeight: '200px',
         clientHeight: 0,
-        top: 0
+        top: 0,
+        scrollH: 0
       }
     },
     components: {
@@ -160,6 +161,7 @@
       },
       onScroll (pos) {
         let offTop = pos.top
+        // window.scrollTo(0,this.scrollH + 1) //window向上滚动
         window.scrollTo(0,328) //window向上滚动
       },
       //滚动监听
@@ -169,7 +171,7 @@
           //128  搜索栏固定
           this.isSearchFixed = true
           this.isTabFixed = false
-          if(scrollTop > 328){
+          if(scrollTop > this.scrollH){
             //763  tab固定
             this.isSearchFixed = true
             this.isTabFixed = true
@@ -255,6 +257,7 @@
       window.addEventListener('scroll', this.handleScroll)      
       this.$nextTick(() => {
         that.clientHeight = `${document.documentElement.clientHeight}`
+        that.scrollH = this.$refs.header.offsetHeight + this.$refs.adbox.offsetHeight + this.$refs.tab_box.offsetHeight - this.$refs.search.offsetHeight
         that.scrollHeight = (that.clientHeight - that.$refs.search.offsetHeight - that.$refs.tab_box.offsetHeight) + 'px'
         this.$refs.scrollerBottom.reset({top: 0})
         window.scrollTo(0,0)
